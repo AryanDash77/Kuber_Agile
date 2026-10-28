@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sample-web-app
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1        # Allows 1 extra pod during update
+      maxUnavailable: 0  # Ensures no downtime during update
+  selector:
+    matchLabels:
+      app: sample-web-app
+  template:
+    metadata:
+      labels:
+        app: sample-web-app
+    spec:
+      containers:
+      - name: web-app-container
+        # Replace with your DockerHub username
+        image: yourdockerhubusername/sample-web-app:latest
+        ports:
+        - containerPort: 8000
+
+        
