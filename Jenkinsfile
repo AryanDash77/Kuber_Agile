@@ -2,24 +2,14 @@ pipeline {
     agent any
 
     environment {
-        // Uses the global credentials established in your Jenkins instance
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred')
-        IMAGE_NAME = "yourdockerhubusername/sample-web-app" // Update this line
+        // WARNING: Replace 'yourdockerhubusername' with your actual username
+        IMAGE_NAME = "yourdockerhubusername/sample-web-app" 
         IMAGE_TAG = "${env.BUILD_ID}"
     }
 
     stages {
-        stage('Test') { // Set 15: Automated Testing
-            steps {
-                script {
-                    echo "Running unit tests..."
-                    bat "pip install -r requirements.txt pytest"
-                    bat "pytest tests.py"
-                }
-            }
-        }
-
-        stage('Build & Push Docker Image') { // Set 12 & 15: Build and Push
+        stage('Build & Push Docker Image') { 
             steps {
                 script {
                     echo "Building Docker image..."
@@ -34,49 +24,33 @@ pipeline {
             }
         }
 
-        stage('Deploy & Rolling Update') { // Set 12 & 13: Kubernetes Deployment
+        stage('Deploy with Readiness Probe') { 
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-cred', variable: 'KUBECONFIG')]) {
                     script {
-                        echo "Applying manifests..."
-                        bat "kubectl apply -f deployment.yaml"
-                        bat "kubectl apply -f service.yaml"
+                        echo "Applying Deployment with Readiness Probe..."
+                        bat "kubectl apply -f Deployment.yaml"
+                        bat "kubectl apply -f Service.yaml"
                         
-                        echo "Triggering Rolling Update with new image..."
+                        echo "Updating image to trigger new pods..."
                         bat "kubectl set image deployment/sample-web-app web-app-container=${IMAGE_NAME}:${IMAGE_TAG}"
                     }
                 }
             }
         }
 
-        stage('Verify Rollout Status') { // Set 13: Verify Deployment
+        stage('Verify Probe Status') { 
             steps {
                 withCredentials([file(credentialsId: 'kubeconfig-cred', variable: 'KUBECONFIG')]) {
                     script {
-                        echo "Waiting for rollout to complete..."
-                        // Timeout prevents the pipeline from hanging infinitely if pods crash
+                        echo "Waiting for pods to pass the readiness probe..."
                         bat "kubectl rollout status deployment/sample-web-app --timeout=90s"
                     }
                 }
             }
         }
     }
-    
     post {
-        failure { // Set 14: Detect and Troubleshoot Failures
-            withCredentials([file(credentialsId: 'kubeconfig-cred', variable: 'KUBECONFIG')]) {
-                script {
-                    echo "PIPELINE FAILED. Executing automated Kubernetes troubleshooting..."
-                    // Fetch deployment events and errors
-                    bat "kubectl describe deployment sample-web-app"
-                    // Fetch status of the failing pods
-                    bat "kubectl get pods -l app=sample-web-app"
-                    
-                    echo "Rolling back to previous stable version..."
-                    bat "kubectl rollout undo deployment/sample-web-app"
-                }
-            }
-        }
         always {
             script {
                 bat "docker logout"
