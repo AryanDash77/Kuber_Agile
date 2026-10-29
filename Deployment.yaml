@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: web-app-container
-        image: aryandash77/sample-web-app:latest
+        image: aryandash77/fastapi-app:latest
         ports:
         - containerPort: 8000
         readinessProbe:
@@ -26,3 +26,4 @@ spec:
           successThreshold: 1
           failureThreshold: 3
 
+          

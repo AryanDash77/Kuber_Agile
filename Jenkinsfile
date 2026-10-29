@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred')
-        IMAGE_NAME = "aryandash77/sample-web-app" 
+        IMAGE_NAME = "aryandash77/fastapi-app" 
         IMAGE_TAG = "${env.BUILD_ID}"
     }
 
