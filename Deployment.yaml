@@ -14,8 +14,7 @@ spec:
     spec:
       containers:
       - name: web-app-container
-        # WARNING: Replace 'yourdockerhubusername' with your actual username
-        image: yourdockerhubusername/sample-web-app:latest
+        image: aryandash77/sample-web-app:latest
         ports:
         - containerPort: 8000
         readinessProbe:
@@ -27,4 +26,3 @@ spec:
           successThreshold: 1
           failureThreshold: 3
 
-          

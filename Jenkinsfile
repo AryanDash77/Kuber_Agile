@@ -3,8 +3,7 @@ pipeline {
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-cred')
-        // WARNING: Replace 'yourdockerhubusername' with your actual username
-        IMAGE_NAME = "yourdockerhubusername/sample-web-app" 
+        IMAGE_NAME = "aryandash77/sample-web-app" 
         IMAGE_TAG = "${env.BUILD_ID}"
     }
 
